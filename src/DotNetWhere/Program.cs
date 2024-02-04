@@ -1,0 +1,1 @@
+DotNetWhere.Application.Cli.Run(args);

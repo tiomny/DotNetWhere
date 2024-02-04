@@ -1,1 +1,0 @@
-DotNetWhy.Application.Cli.Run(args);

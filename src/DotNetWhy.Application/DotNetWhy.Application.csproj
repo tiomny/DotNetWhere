@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-    <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
-        <PackageReference Include="Spectre.Console.Cli"/>
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\DotNetWhy.Core\DotNetWhy.Core.csproj"/>
-    </ItemGroup>
-</Project>
