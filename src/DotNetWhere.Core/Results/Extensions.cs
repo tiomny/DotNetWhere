@@ -1,10 +1,12 @@
+using DotNetWhere.Core.Models;
+
 namespace DotNetWhere.Core.Results;
 
 internal static class Extensions
 {
     public static Result HandleWith(this IResultHandler handler, params IResultHandler[] nextHandlers)
     {
-        var handlersResults = new[] {handler}
+        var handlersResults = new[] { handler }
             .Concat(nextHandlers)
             .AsParallel()
             .Select(resultHandler => resultHandler.Handle())
@@ -24,24 +26,24 @@ internal static class Extensions
     public static Result<T> HandleNext<T>(this Result result, IResultHandler<T> nextHandler) =>
         result.IsSuccess
             ? nextHandler.Handle()
-            : Result<T>.Failure(result.Error);
+            : Result<T>.Failure(result.Error!);
 
     public static Result<TV> Map<T, TV>(this Result<T> result, Func<T, TV> mapper) =>
         result.IsSuccess
-            ? Result<TV>.Success(mapper(result.Value))
-            : Result<TV>.Failure(result.Error);
+            ? Result<TV>.Success(mapper(result.Value!))
+            : Result<TV>.Failure(result.Error!);
 
     public static Result<T> Unwrap<T>(this Result<Result<T>> result) =>
-        result.IsSuccess && result.Value.IsSuccess
-            ? Result<T>.Success(result.Value.Value)
-            : Result<T>.Failure(result.Error ?? result.Value.Error);
+        result.IsSuccess && result.Value!.IsSuccess
+            ? Result<T>.Success(result.Value.Value!)
+            : Result<T>.Failure(result.Error ?? result.Value!.Error!);
 
-    public static Response ToResponse(this Result<Node> nodeResult) =>
+    public static Response ToResponse(this Result<Solution> nodeResult) =>
         nodeResult.IsSuccess
-            ? nodeResult.Value.HasNodes
-                ? new Response(nodeResult.Value)
+            ? nodeResult.Value!.Projects.Any()
+                ? new Response(nodeResult.Value!)
                 : new Response(new[] {Errors.PackageNotFound})
-            : new Response(nodeResult.Error.Split(Errors.Splitter).Distinct());
+            : new Response(nodeResult.Error!.Split(Errors.Splitter).Distinct());
 
     private static class Errors
     {

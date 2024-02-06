@@ -2,7 +2,7 @@ namespace DotNetWhere.Core.Results;
 
 internal sealed class Result<T>
 {
-    private Result(bool isSuccess, T value, string error = null)
+    private Result(bool isSuccess, T? value, string? error = null)
     {
         IsSuccess = isSuccess;
         Error = error;
@@ -10,8 +10,8 @@ internal sealed class Result<T>
     }
 
     public bool IsSuccess { get; }
-    public string Error { get; }
-    public T Value { get; }
+    public string? Error { get; }
+    public T? Value { get; }
 
     public static Result<T> Success(T value) =>
         new(true, value);

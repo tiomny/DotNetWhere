@@ -1,6 +1,8 @@
+using DotNetWhere.Core.Models;
+
 namespace DotNetWhere.Application.Loggers;
 
-internal sealed class Logger(IAnsiConsole console) : ILogger
+internal sealed class ColorLogger(IAnsiConsole console) : ILogger
 {
     private readonly IDictionary<int, Func<string, FormattableString>> _headerLabelsColors =
         new Dictionary<int, Func<string, FormattableString>>
@@ -10,19 +12,6 @@ internal sealed class Logger(IAnsiConsole console) : ILogger
             {3, Extensions.DarkCyan}
         };
 
-    public Request LogAction(Func<Request> getRequest)
-    {
-        var request = getRequest();
-
-        console.MarkupLineInterpolated("Why...?".Bold());
-        console.MarkupLineInterpolated($"* is the *{request.PackageName.Bold()}* package");
-        if (!string.IsNullOrEmpty(request.PackageVersion))
-            console.MarkupLineInterpolated($"* in the {request.PackageVersion.Bold()} version");
-        console.MarkupLineInterpolated($"* in the {request.WorkingDirectory.Bold()} directory");
-
-        return request;
-    }
-
     public Response LogAction(Func<Response> getResponse) =>
         console
             .Status()
@@ -30,21 +19,22 @@ internal sealed class Logger(IAnsiConsole console) : ILogger
             .SpinnerStyle(new Style(Color.Green))
             .Start("Analyzing...", _ => getResponse());
 
-    public void Log(Request request, Response response)
+    public void Log(Response response)
     {
         console.WriteLine();
 
         if (response.IsSuccess)
-            Log(request, response.Node);
+            Log(response.Solution);
         else
-            Log(response.Errors);
+            LogErrors(response.Errors);
     }
 
     public void Log(ElapsedTime elapsedTime) =>
         console.MarkupLineInterpolated($@"Time elapsed: {elapsedTime:hh\:mm\:ss\.ff}");
 
-    private void Log(Request request, Node node)
+    private void Log(Solution node)
     {
+        /*
         var maxWidth = Console.WindowWidth - Tabs.Double;
         var nameWidth = GetLongestNodeNameLength(node);
         var rootLastNodesSum = node.LastNodesSum;
@@ -99,74 +89,10 @@ internal sealed class Logger(IAnsiConsole console) : ILogger
 
             console.WriteLine();
         }
+        */
     }
 
-    private static int GetLongestNodeNameLength(Node node) =>
-        GetLongestNodeName(node).Length + Tabs.Double;
-
-    private static string GetLongestNodeName(Node node)
-    {
-        if (node is null)
-            return string.Empty;
-
-        var longestNodeName = node
-            .Nodes
-            .Where(n => string.IsNullOrEmpty(n.Version))
-            .Select(GetLongestNodeName)
-            .MaxBy(name => name.Length);
-
-        return node.Name.Length >= (longestNodeName?.Length ?? default)
-            ? node.Name
-            : longestNodeName;
-    }
-
-    private FormattableString GetHeaderLabel(
-        int level,
-        Node node,
-        int nameWidth,
-        int parentLastNodesSum = default)
-    {
-        var prefix = new string(Characters.Level, level).PadRight(Tabs.Double);
-        var name = node.Name.PadRight(nameWidth);
-        var suffixText = parentLastNodesSum is 0
-            ? $"[{node.LastNodesSum}]"
-            : $"[{node.LastNodesSum}/{parentLastNodesSum}]";
-        var suffix = suffixText.PadLeft(Tabs.Triple * Tabs.Single);
-
-        return _headerLabelsColors[level]($"{prefix}{name}{suffix}");
-    }
-
-    private static IEnumerable<List<string>> GetPaths(Node node)
-    {
-        if (node is null)
-            return Enumerable.Empty<List<string>>();
-
-        var nodeValue = node.ToString();
-
-        if (!node.Nodes.Any())
-            return new List<List<string>>
-            {
-                new()
-                {
-                    nodeValue
-                }
-            };
-
-        var paths = new List<List<string>>();
-        foreach (var childNode in node.Nodes)
-        {
-            var childPaths = GetPaths(childNode);
-            foreach (var childPath in childPaths)
-            {
-                childPath.Insert(0, nodeValue);
-                paths.Add(childPath.ToList());
-            }
-        }
-
-        return paths;
-    }
-
-    private void Log(IEnumerable<string> errors)
+    public void LogErrors(IEnumerable<string> errors)
     {
         console.MarkupLineInterpolated("Errors:".Bold());
         foreach (var error in errors)

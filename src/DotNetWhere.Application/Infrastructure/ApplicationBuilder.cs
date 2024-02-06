@@ -1,3 +1,5 @@
+using OutputFormat = DotNetWhere.Application.Commands.DotNetWhereCommand.OutputFormat;
+
 namespace DotNetWhere.Application.Infrastructure;
 
 internal static class ApplicationBuilder
@@ -7,7 +9,12 @@ internal static class ApplicationBuilder
     public static IServiceCollection AddServices() =>
         Services
             .AddCore()
-            .AddSingleton<ILogger, Logger>();
+            .AddSingleton<LoggerFactory>()
+            .AddKeyedSingleton<ILogger, CompactLogger>(OutputFormat.Compact)
+            .AddKeyedSingleton<ILogger, ColorLogger>(OutputFormat.Color)
+            .AddKeyedSingleton<ILogger, JsonLogger>(OutputFormat.Json)
+            .AddKeyedSingleton<ILogger, YamlLogger>(OutputFormat.Yaml)
+        ;
 
     public static ITypeRegistrar AsTypeRegistrar(this IServiceCollection services) =>
         new TypeRegistrar(services);

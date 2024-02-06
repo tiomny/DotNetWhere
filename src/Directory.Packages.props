@@ -1,11 +1,11 @@
 <Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
-        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.1"/>
-        <PackageVersion Include="NuGet.ProjectModel" Version="6.7.0"/>
-        <PackageVersion Include="Spectre.Console.Cli" Version="0.47.0"/>
-    </ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    <PackageVersion Include="NuGet.ProjectModel" Version="6.8.0" />
+    <PackageVersion Include="Spectre.Console.Cli" Version="0.48.0" />
+  </ItemGroup>
 </Project>

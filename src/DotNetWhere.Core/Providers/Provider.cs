@@ -1,3 +1,6 @@
+using DotNetWhere.Core.Matchers;
+using DotNetWhere.Core.Models;
+
 namespace DotNetWhere.Core.Providers;
 
 internal sealed class Provider : IProvider
@@ -8,6 +11,8 @@ internal sealed class Provider : IProvider
 
         try
         {
+            var matcher = MatcherFactory.CreateMatcher(request.PackageName);
+
             return new RequestValidator(request)
                 .HandleWith(new WorkingDirectoryValidator(request.WorkingDirectory))
                 .HandleNext(new GetRestoreGraphOutputPathQuery())
@@ -16,18 +21,16 @@ internal sealed class Provider : IProvider
                             request.WorkingDirectory,
                             restoreGraphOutputPath)
                         .HandleWith(new RestoreCommand(request.WorkingDirectory))
-                        .HandleNext(new GetDependencyNodeQuery(
+                        .HandleNext(new GetProjectPackagesQuery(
+                            matcher,
                             restoreGraphOutputPath,
-                            name,
-                            request.PackageName,
-                            request.PackageVersion)))
+                            name)))
                 .Unwrap()
-                .Map(dependencyNode => dependencyNode.ToNode())
                 .ToResponse();
         }
         catch (Exception exception)
         {
-            return Result<Node>
+            return Result<Solution>
                 .Failure(exception.Message)
                 .ToResponse();
         }

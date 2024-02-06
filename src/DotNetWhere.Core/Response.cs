@@ -1,3 +1,5 @@
+using DotNetWhere.Core.Models;
+
 namespace DotNetWhere.Core;
 
 public sealed class Response
@@ -8,13 +10,13 @@ public sealed class Response
         Errors = errors;
     }
 
-    internal Response(Node node)
+    internal Response(Solution solution)
     {
         IsSuccess = true;
-        Node = node;
+        Solution = solution;
     }
 
     public bool IsSuccess { get; }
     public IEnumerable<string> Errors { get; } = Enumerable.Empty<string>();
-    public Node Node { get; }
+    public Solution? Solution { get; }
 }
