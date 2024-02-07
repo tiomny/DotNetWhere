@@ -1,3 +1,5 @@
+using DotNetWhere.Core.Models;
+
 namespace DotNetWhere.Application.Commands;
 
 internal static class Extensions

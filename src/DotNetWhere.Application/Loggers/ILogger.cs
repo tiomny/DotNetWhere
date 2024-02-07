@@ -1,3 +1,5 @@
+using DotNetWhere.Core.Models;
+
 namespace DotNetWhere.Application.Loggers;
 
 internal interface ILogger

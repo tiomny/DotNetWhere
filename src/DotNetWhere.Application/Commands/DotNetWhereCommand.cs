@@ -1,3 +1,5 @@
+using DotNetWhere.Core.Providers;
+
 namespace DotNetWhere.Application.Commands;
 
 internal sealed partial class DotNetWhereCommand

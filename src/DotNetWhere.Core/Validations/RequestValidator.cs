@@ -1,3 +1,5 @@
+using DotNetWhere.Core.Models;
+
 namespace DotNetWhere.Core.Validations;
 
 internal sealed class RequestValidator

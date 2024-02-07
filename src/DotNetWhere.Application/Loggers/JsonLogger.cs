@@ -1,4 +1,6 @@
-﻿namespace DotNetWhere.Application.Loggers;
+﻿using DotNetWhere.Core.Models;
+
+namespace DotNetWhere.Application.Loggers;
 
 internal class JsonLogger : ILogger
 {

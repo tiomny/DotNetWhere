@@ -1,6 +1,4 @@
-using DotNetWhere.Core.Models;
-
-namespace DotNetWhere.Core;
+namespace DotNetWhere.Core.Models;
 
 public sealed class Response
 {
