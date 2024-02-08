@@ -1,4 +1,4 @@
-| ![](https://raw.githubusercontent.com/tiomny/DotNetWhere/master/assets/logo/256/logo.png) |
+||
 |:--:|
 | `dotnet where` - a .NET global tool to show information about where a NuGet package is installed |
 | ![Nuget](https://img.shields.io/nuget/v/DotNetWhere?label=version) ![GitHub](https://img.shields.io/github/license/tiomny/DotNetWhere) ![Nuget](https://img.shields.io/nuget/dt/DotNetWhere) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/tiomny/DotNetWhere/build.yml?branch=master) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/tiomny/DotNetWhere/release.yml?label=release) ![GitHub issues](https://img.shields.io/github/issues/tiomny/DotNetWhere) ![GitHub pull requests](https://img.shields.io/github/issues-pr/tiomny/DotNetWhere) |
@@ -57,8 +57,6 @@ DotNetWhere.Core
 
 All query arguments are optional:
 ```bash
-> dotnet where Newtonsoft.Json --version 13.0.1
-> dotnet where Newtonsoft.Json -v 13.0.2
 > dotnet where --help
   -d, --dir                Solution directory. When not passed: current
                            directory.
