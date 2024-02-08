@@ -5,12 +5,12 @@
         <OutputType>exe</OutputType>
         <PackAsTool>true</PackAsTool>
         <Title>$(AssemblyName)</Title>
-        <ToolCommandName>dotnet-why</ToolCommandName>
+        <ToolCommandName>dotnet-where</ToolCommandName>
     </PropertyGroup>
     <PropertyGroup>
-        <Authors>Tomasz Adamczyk</Authors>
-        <Copyright>Copyright (c) 2021 $(Authors)</Copyright>
-        <Description>A .NET global tool to show information about why a NuGet package is installed.</Description>
+        <Authors>2021 Tomasz Adamczyk, 2024 Artem C</Authors>
+        <Copyright>Copyright (c) $(Authors)</Copyright>
+        <Description>A .NET global tool to show information about where a NuGet package is installed.</Description>
         <PackageIcon>logo.png</PackageIcon>
         <PackageId>$(AssemblyName)</PackageId>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>

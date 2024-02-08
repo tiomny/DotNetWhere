@@ -19,6 +19,6 @@ internal sealed class RequestValidator
     private static class Errors
     {
         public const string PackageNameNotSpecified =
-            "Package name not specified. Please run command once again specifying package name - 'dotnet why PACKAGE_NAME'.";
+            "Package name not specified. Please run command once again specifying package name - 'dotnet where PACKAGE_NAME'.";
     }
 }
