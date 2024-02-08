@@ -1,11 +1,12 @@
-﻿using System;
+using System;
 
 using DotNetWhere.Core.Models;
 
 namespace DotNetWhere.Application.Loggers;
 
-internal class CompactLogger : ILogger
+internal class CompactOutputWriter : IOutputWriter
 {
+    public static readonly string Contract = OutputFormat.Compact.ToString();
     public void Log(Response response)
     {
         Console.WriteLine();
@@ -26,8 +27,14 @@ internal class CompactLogger : ILogger
         Console.WriteLine();
     }
 
-    private void Log(Solution solution)
+    private void Log(Solution? solution)
     {
+        if (solution is null)
+        {
+            Console.WriteLine("Nothing was found");
+            return;
+        }
+
         foreach (var project in solution.Projects)
         {
             WriteLine(0, project.Name);
@@ -36,7 +43,7 @@ internal class CompactLogger : ILogger
                 WriteLine(2, target.Version);
                 foreach (var package in target.Packages)
                 {
-                    LogPackage(4, package);
+                    LogPackage(4, package!);
                 }
             }
         }
@@ -54,5 +61,5 @@ internal class CompactLogger : ILogger
     private void WriteLine(int shift, string message) =>
         //Console.WriteLine($"{{{shift}}}", message);
         Console.WriteLine("".PadLeft(shift) + message);
-    
+
 }

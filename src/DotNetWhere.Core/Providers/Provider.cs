@@ -11,7 +11,8 @@ internal sealed class Provider : IProvider
 
         try
         {
-            var matcher = MatcherFactory.CreateMatcher(request.PackageName);
+            var packageMatcher = MatcherFactory.CreateMatcher(request.PackageName);
+            var versionMatcher = MatcherFactory.CreateMatcher(request.PackageVersion);
 
             return new RequestValidator(request)
                 .HandleWith(new WorkingDirectoryValidator(request.WorkingDirectory))
@@ -22,7 +23,8 @@ internal sealed class Provider : IProvider
                             restoreGraphOutputPath)
                         .HandleWith(new RestoreCommand(request.WorkingDirectory))
                         .HandleNext(new GetProjectPackagesQuery(
-                            matcher,
+                            packageMatcher,
+                            versionMatcher,
                             restoreGraphOutputPath,
                             name)))
                 .Unwrap()
@@ -30,7 +32,7 @@ internal sealed class Provider : IProvider
         }
         catch (Exception exception)
         {
-            return Result<Solution>
+            return Result<Solution?>
                 .Failure(exception.Message)
                 .ToResponse();
         }

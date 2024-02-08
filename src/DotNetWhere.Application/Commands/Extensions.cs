@@ -4,9 +4,9 @@ namespace DotNetWhere.Application.Commands;
 
 internal static class Extensions
 {
-    public static Request ToRequest(this DotNetWhereCommand.Settings settings) =>
-        new(settings.PackageName, settings.Directory)
+    public static Request ToRequest(this Options options) =>
+        new(options.PackageName, options.Directory)
         {
-            PackageVersion = settings.PackageVersion
+            PackageVersion = options.PackageVersion
         };
 }

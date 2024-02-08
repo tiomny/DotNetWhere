@@ -38,12 +38,14 @@ internal static class Extensions
             ? Result<T>.Success(result.Value.Value!)
             : Result<T>.Failure(result.Error ?? result.Value!.Error!);
 
-    public static Response ToResponse(this Result<Solution> nodeResult) =>
+#pragma warning disable S3358 // Ternary operators should not be nested
+    public static Response ToResponse(this Result<Solution?> nodeResult) =>
         nodeResult.IsSuccess
-            ? nodeResult.Value!.Projects.Any()
-                ? new Response(nodeResult.Value!)
+            ? nodeResult.Value is not null
+                ? new Response(nodeResult.Value)
                 : new Response(new[] {Errors.PackageNotFound})
             : new Response(nodeResult.Error!.Split(Errors.Splitter).Distinct());
+#pragma warning restore S3358 // Ternary operators should not be nested
 
     private static class Errors
     {

@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 using DotNetWhere.Core.Helpers;
 using DotNetWhere.Core.Mappers;
 using DotNetWhere.Core.Matchers;
@@ -7,73 +9,100 @@ namespace DotNetWhere.Core.Queries;
 
 internal sealed class GetProjectPackagesQuery
 (
-    IMatcher matcher,
+    IMatcher? packageMatcher,
+    IMatcher? versionMatcher,
     string restoreGraphOutputPath,
     string name
-) : IResultHandler<Solution>
+) : IResultHandler<Solution?>
 {
     private readonly Dictionary<PackageKey, List<PackageKey>> _packages = new();
     private readonly Dictionary<PackageKey, Package> _matchPackages = new();
 
-    public Result<Solution> Handle()
+    public Result<Solution?> Handle()
     {
+#pragma warning disable S3358 // Ternary operators should not be nested
+        match = packageMatcher is not null && versionMatcher is not null
+        ? matchByPackageAndVersion
+        : (packageMatcher is null
+            ? matchByVersion
+            : matchByPackage);
+#pragma warning restore S3358 // Ternary operators should not be nested
+
         var solution = GetSolution();
 
-        return Result<Solution>.Success(solution);
+        return Result<Solution?>.Success(solution);
     }
 
-    private Solution GetSolution()
+    private Solution? GetSolution()
     {
-        var node = new Solution(name);
-
         var dependencyGraphSpec = LockFileHelpers.GetDependencyGraphSpec(restoreGraphOutputPath);
-        if (dependencyGraphSpec is null) return node;
+        if (dependencyGraphSpec is null)
+        {
+            return null;
+        }
 
-        node.Projects.AddRange(
-            dependencyGraphSpec
+        var projects = dependencyGraphSpec
             .Projects
             .Where(LockFileHelpers.IsPackage)
             .Select(GetProject)
-            );
+            .WhereNotNull()
+            .ToList();
 
-        return node;
+        if (!projects.Any())
+        {
+            return null;
+        }
+
+        return new Solution(name, projects);
     }
 
-    private Project GetProject(PackageSpec project)
+    private Project? GetProject(PackageSpec project)
     {
-        var projectNode = new Project(project.Name, null);
-
         var lockFile = LockFileHelpers.GetLockFile(project.RestoreMetadata.OutputPath);
-        if (lockFile is null) return projectNode;
+        if (lockFile is null)
+        {
+            return null;
+        }
 
         CachePackages(lockFile);
 
-        projectNode.Targets.AddRange(
+        var targets =
             project
             .TargetFrameworks
-            .Select(target => GetTargetNode(target, lockFile)));
+            .Select(target => GetTargetNode(target, lockFile))
+            .WhereNotNull()
+            .ToList();
 
-        return projectNode;
+        if (!targets.Any())
+        {
+            return null;
+        }
+
+        return new Project(project.Name, project.Version.ToString(), targets);
     }
 
-    private Target GetTargetNode(
+    private Target? GetTargetNode(
         TargetFrameworkInformation target,
         LockFile lockFile)
     {
-        var targetNode = new Target(target.ToString());
-
         var lockFileTarget = LockFileHelpers.GetLockFileTarget(lockFile, target.FrameworkName.ToString());
-        if (lockFileTarget is null) return targetNode;
+        if (lockFileTarget is null)
+        {
+            return null;
+        }
 
-
-        targetNode.Packages.AddRange(
-        target
+        var packages = target
             .Dependencies
             .Select(dependency => GetPackageNode(dependency.ToPackageKey(target.ToString())))
-            .Where(dependency => dependency is not null)
-            );
+            .WhereNotNull()
+            .ToList();
 
-        return targetNode;
+        if (!packages.Any())
+        {
+            return null;
+        }
+
+        return new Target(target.ToString(), packages);
     }
 
     private Package? GetPackageNode(PackageKey packageKey)
@@ -83,24 +112,36 @@ internal sealed class GetProjectPackagesQuery
             return package;
         }
 
-        var isMatch = matcher.Match(packageKey.Name);
-        var transitiveMatch = isMatch;
-        package = new Package(packageKey.Name, packageKey.Version, isMatch);
+        var shouldAdd = false;
+
+        var isMatch = false;
+
+        if (packageMatcher is null && versionMatcher is null)
+        {
+            shouldAdd = true;
+        }
+        else
+        {
+            shouldAdd = isMatch = match!(packageKey.Name, packageKey.Version);            
+        }
+
+        var packages = new List<Package>();
 
         foreach (var dependentPackageKey in _packages[packageKey])
         {
             var dependentPackage = GetPackageNode(dependentPackageKey);
             if (dependentPackage is not null)
             {
-                transitiveMatch = true;
-                package.Packages.Add(dependentPackage);
+                shouldAdd = true;
+                packages.Add(dependentPackage);
             }
         }
 
-        if (transitiveMatch)
+        if (shouldAdd)
         {
-            _matchPackages.Add(packageKey, package);
-            return package;
+            var pkg = new Package(packageKey.Name, packageKey.Version, isMatch, packages);
+            _matchPackages.Add(packageKey, pkg);
+            return pkg;
         }
 
         return null;
@@ -138,4 +179,16 @@ internal sealed class GetProjectPackagesQuery
         }
     }
 
+    Func<string, string, bool>? match;
+
+    bool matchByPackageAndVersion(string package, string version) =>
+        packageMatcher!.Match(package) && versionMatcher!.Match(version);
+
+#pragma warning disable S1172 // Unused method parameters should be removed
+    bool matchByPackage(string package, string version) =>
+        packageMatcher!.Match(package);
+
+    bool matchByVersion(string package, string version) =>
+        versionMatcher!.Match(version);
+#pragma warning restore S1172 // Unused method parameters should be removed
 }

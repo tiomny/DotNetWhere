@@ -1,7 +1,9 @@
+using Splat;
+
 namespace DotNetWhere.Core;
 
 public static class Extensions
 {
-    public static IServiceCollection AddCore(this IServiceCollection services) =>
-        services.AddScoped<IProvider, Provider>();
+    public static IMutableDependencyResolver AddCore(this IMutableDependencyResolver resolver) =>
+        resolver.RegisterAnd<IProvider, Provider>();
 }

@@ -2,7 +2,7 @@
   "profiles": {
     "DotNetWhere": {
       "commandName": "Project",
-      "commandLineArgs": "E:\\mydev\\DotNetWhere NuGet*"
+      "commandLineArgs": "-d E:\\mydev\\DotNetWhere -V /^(?!.*8\\.0\\.0).*"
     }
   }
 }

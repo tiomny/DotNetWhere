@@ -8,7 +8,7 @@ public sealed class Response
         Errors = errors;
     }
 
-    internal Response(Solution solution)
+    internal Response(Solution? solution)
     {
         IsSuccess = true;
         Solution = solution;

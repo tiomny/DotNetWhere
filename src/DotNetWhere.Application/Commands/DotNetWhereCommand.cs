@@ -2,28 +2,27 @@ using DotNetWhere.Core.Providers;
 
 namespace DotNetWhere.Application.Commands;
 
-internal sealed partial class DotNetWhereCommand
+internal sealed class DotNetWhereCommand
 (
-    LoggerFactory loggerFactory,
-    IProvider provider
-) : Command<DotNetWhereCommand.Settings>
+    IOutputWriter outputWriter,
+    IProvider provider,
+    Options options
+)
 {
-    public override int Execute(CommandContext context, Settings settings)
+    public int Execute()
     {
-        var logger = loggerFactory.CreateLogger(settings.OutputFormat);
-
         var stopwatch = Stopwatch.StartNew();
-        var request = settings.ToRequest();
-        var response = logger.LogAction(() => provider.Get(request));
+        var request = options.ToRequest();
+        var response = outputWriter.LogAction(() => provider.Get(request));
         if (response.IsSuccess)
         {
-            logger.Log(response);
+            outputWriter.Log(response);
         }
         else
         {
-            logger.LogErrors(response.Errors);
+            outputWriter.LogErrors(response.Errors);
         }
-        logger.Log(stopwatch.Elapsed);
+        outputWriter.Log(stopwatch.Elapsed);
 
         return default;
     }

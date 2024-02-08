@@ -13,7 +13,7 @@ internal sealed class Result<T>
     public string? Error { get; }
     public T? Value { get; }
 
-    public static Result<T> Success(T value) =>
+    public static Result<T> Success(T? value) =>
         new(true, value);
 
     public static Result<T> Failure(string error) =>

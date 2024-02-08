@@ -2,8 +2,10 @@ using DotNetWhere.Core.Models;
 
 namespace DotNetWhere.Application.Loggers;
 
-internal sealed class ColorLogger(IAnsiConsole console) : ILogger
+internal sealed class ColorOutputWriter(IAnsiConsole console) : IOutputWriter
 {
+    public static readonly string Contract = OutputFormat.Color.ToString();
+
     private readonly IDictionary<int, Func<string, FormattableString>> _headerLabelsColors =
         new Dictionary<int, Func<string, FormattableString>>
         {
@@ -32,7 +34,7 @@ internal sealed class ColorLogger(IAnsiConsole console) : ILogger
     public void Log(ElapsedTime elapsedTime) =>
         console.MarkupLineInterpolated($@"Time elapsed: {elapsedTime:hh\:mm\:ss\.ff}");
 
-    private void Log(Solution node)
+    private void Log(Solution? node)
     {
         /*
         var maxWidth = Console.WindowWidth - Tabs.Double;
