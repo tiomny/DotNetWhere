@@ -6,6 +6,7 @@
         <PackAsTool>true</PackAsTool>
         <Title>$(AssemblyName)</Title>
         <ToolCommandName>dotnet-where</ToolCommandName>
+        <VersionPrefix Condition=" '$(VersionPrefix)' == '' ">1.0.0</VersionPrefix>
     </PropertyGroup>
     <PropertyGroup>
         <Authors>2021 Tomasz Adamczyk, 2024 Artem C</Authors>
