@@ -23,14 +23,13 @@
         <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="..\..\assets\logo\256\logo.png" Pack="true" PackagePath="\"/>
-        <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
-        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\DotNetWhere.Application\DotNetWhere.Application.csproj"/>
+        <ProjectReference Include="..\DotNetWhere.Application\DotNetWhere.Application.csproj" />
     </ItemGroup>
 </Project>
