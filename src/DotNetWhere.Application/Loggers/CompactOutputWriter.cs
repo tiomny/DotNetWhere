@@ -9,7 +9,7 @@ internal class CompactOutputWriter : IOutputWriter
     public static readonly string Contract = OutputFormat.Compact.ToString();
     public void Log(Response response)
     {
-        Console.WriteLine();
+        WriteLine();
 
         if (response.IsSuccess)
             Log(response.Solution);
@@ -17,27 +17,30 @@ internal class CompactOutputWriter : IOutputWriter
             LogErrors(response.Errors);
     }
 
-    public void Log(ElapsedTime elapsedTime) { }
-    public Response LogAction(Func<Response> getResponse) => getResponse();
+    public void Log(ElapsedTime elapsedTime) =>
+        WriteLine(message: $@"Time elapsed: {elapsedTime:hh\:mm\:ss\.ff}");
+
+    public Response LogAction(Func<Response> getResponse) =>
+        getResponse();
+
     public void LogErrors(IEnumerable<string> errors)
     {
-        Console.WriteLine("Errors:");
+        WriteLine(message: "Errors:");
         foreach (var error in errors)
-            Console.WriteLine(error);
-        Console.WriteLine();
+            WriteLine(2, error);
     }
 
     private void Log(Solution? solution)
     {
         if (solution is null)
         {
-            Console.WriteLine("Nothing was found");
+            LogErrors(new[] { "Solution not found" });
             return;
         }
 
         foreach (var project in solution.Projects)
         {
-            WriteLine(0, project.Name);
+            WriteLine(message: project.Name);
             foreach (var target in project.Targets)
             {
                 WriteLine(2, target.Version);
@@ -49,17 +52,18 @@ internal class CompactOutputWriter : IOutputWriter
         }
     }
 
-    private void LogPackage(int shift, Package package)
+    private void LogPackage(int pad, Package package)
     {
-        WriteLine(shift, package.ToString());
-        foreach (var dep in package.Packages)
+        WriteLine(pad, package.ToString());
+        if (package.Packages is not null)
         {
-            LogPackage(shift + 2, dep);
+            foreach (var dep in package.Packages)
+            {
+                LogPackage(pad + 2, dep);
+            }
         }
     }
 
-    private void WriteLine(int shift, string message) =>
-        //Console.WriteLine($"{{{shift}}}", message);
-        Console.WriteLine("".PadLeft(shift) + message);
-
+    private void WriteLine(int pad = 0, string? message = null) =>
+        Console.WriteLine("".PadLeft(pad) + message);
 }

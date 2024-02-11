@@ -139,7 +139,8 @@ internal sealed class GetProjectPackagesQuery
 
         if (shouldAdd)
         {
-            var pkg = new Package(packageKey.Name, packageKey.Version, isMatch, packages);
+            var ps = packages.Any() ? packages : null;
+            var pkg = new Package(packageKey.Name, packageKey.Version, isMatch, ps);
             _matchPackages.Add(packageKey, pkg);
             return pkg;
         }

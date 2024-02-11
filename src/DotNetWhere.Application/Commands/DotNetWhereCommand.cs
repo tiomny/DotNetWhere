@@ -14,6 +14,9 @@ internal sealed class DotNetWhereCommand
         var stopwatch = Stopwatch.StartNew();
         var request = options.ToRequest();
         var response = outputWriter.LogAction(() => provider.Get(request));
+
+        stopwatch.Stop();
+
         if (response.IsSuccess)
         {
             outputWriter.Log(response);
@@ -21,6 +24,7 @@ internal sealed class DotNetWhereCommand
         else
         {
             outputWriter.LogErrors(response.Errors);
+            return -1;
         }
         outputWriter.Log(stopwatch.Elapsed);
 
