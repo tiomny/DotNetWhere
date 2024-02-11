@@ -1,6 +1,7 @@
 ||
 |:--:|
-| `dotnet where` - a .NET global tool to show information about where a NuGet package is installed |
+| `dotnet where` - a .NET global tool to show information about where a NuGet package is installed. |
+| Fork of [dotnet why](https://github.com/tadamczyk/DotNetWhy) but with advanced features. |
 | ![Nuget](https://img.shields.io/nuget/v/DotNetWhere?label=version) ![GitHub](https://img.shields.io/github/license/tiomny/DotNetWhere) ![Nuget](https://img.shields.io/nuget/dt/DotNetWhere) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/tiomny/DotNetWhere/build.yml?branch=master) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/tiomny/DotNetWhere/release.yml?label=release) ![GitHub issues](https://img.shields.io/github/issues/tiomny/DotNetWhere) ![GitHub pull requests](https://img.shields.io/github/issues-pr/tiomny/DotNetWhere) |
 
 ## Installation
