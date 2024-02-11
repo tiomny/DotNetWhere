@@ -1,6 +1,10 @@
 using CommandLine;
 using CommandLine.Text;
-using Splat;
+
+using DotNetWhere.Application.Factories;
+using DotNetWhere.Application.Writers;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotNetWhere.Application;
 
@@ -8,7 +12,7 @@ public static class Cli
 {
     public static void Run(IEnumerable<string> args)
     {
-        var parser = new CommandLine.Parser(with => with.HelpWriter = null);
+        using var parser = new CommandLine.Parser(with => with.HelpWriter = null);
         var parserResult = parser.ParseArguments<Options>(args);
         parserResult
           .WithParsed<Options>(options => Run(options))
@@ -17,29 +21,27 @@ public static class Cli
 
     static void Run(Options options)
     {
-        RegisterServices(options);
+        var services = new ServiceCollection();
 
-        Locator.Current.GetService<DotNetWhereCommand>()!.Execute();
+        RegisterServices(services, options);
+
+        using var provider = services.BuildServiceProvider();
+
+        provider.GetService<DotNetWhereCommand>()!.Execute();
     }
 
-    static void RegisterServices(Options options)
+    static void RegisterServices(IServiceCollection services, Options options)
     {
-        SplatRegistrations.SetupIOC();
-
-        Locator.CurrentMutable.AddCore();
-
-        SplatRegistrations.RegisterConstant(options);
-        SplatRegistrations.RegisterLazySingleton<OutputWriterFactory>();
-        Locator.CurrentMutable.RegisterLazySingleton<IOutputWriter>(
-            () => Locator.Current.GetService<OutputWriterFactory>()!.CreateLogger()
-            );
-#pragma warning disable SPLATDI006 // Interface has been registered before
-        SplatRegistrations.RegisterLazySingleton<IOutputWriter, CompactOutputWriter>(CompactOutputWriter.Contract);
-        SplatRegistrations.RegisterLazySingleton<IOutputWriter, ColorOutputWriter>(ColorOutputWriter.Contract);
-        SplatRegistrations.Register<IOutputWriter, JsonOutputWriter>(JsonOutputWriter.Contract);
-        SplatRegistrations.Register<IOutputWriter, YamlOutputWriter>(YamlOutputWriter.Contract);
-#pragma warning restore SPLATDI006 // Interface has been registered before
-        SplatRegistrations.RegisterLazySingleton<DotNetWhereCommand>();
+        services
+            .AddCore()
+            .AddSingleton(options)
+            .RegisterFactory<TextWriter, OutputWriterFactory>()
+            .RegisterFactory<IWriter, WriterFactory>()
+            .AddKeyedTransient<IWriter, CompactWriter>(OutputFormat.Compact)
+            .AddKeyedTransient<IWriter, ColorWriter>(OutputFormat.Color)
+            .AddKeyedTransient<IWriter, JsonWriter>(OutputFormat.Json)
+            .AddKeyedTransient<IWriter, YamlWriter>(OutputFormat.Yaml)
+            .AddSingleton<DotNetWhereCommand>();
     }
 
     static void DisplayHelp<T>(ParserResult<T> result)
@@ -50,5 +52,17 @@ public static class Cli
             return HelpText.DefaultParsingErrorsHandler(result, h);
         }, e => e);
         Console.WriteLine(helpText);
+    }
+
+    static IServiceCollection RegisterFactory<TService, TFactory>(this IServiceCollection services)
+        where TService : class
+        where TFactory : class, IFactory<TService>
+    {
+        services.AddSingleton<TFactory>();
+        services.AddSingleton<TService>(
+            provider => provider.GetService<TFactory>()!.Create()
+            );
+
+        return services;
     }
 }

@@ -1,10 +1,11 @@
+using DotNetWhere.Application.Writers;
 using DotNetWhere.Core.Providers;
 
 namespace DotNetWhere.Application.Commands;
 
 internal sealed class DotNetWhereCommand
 (
-    IOutputWriter outputWriter,
+    IWriter outputWriter,
     IProvider provider,
     Options options
 )
@@ -13,20 +14,19 @@ internal sealed class DotNetWhereCommand
     {
         var stopwatch = Stopwatch.StartNew();
         var request = options.ToRequest();
-        var response = outputWriter.LogAction(() => provider.Get(request));
+        var response = provider.Get(request);
 
         stopwatch.Stop();
 
         if (response.IsSuccess)
         {
-            outputWriter.Log(response);
+            outputWriter.WriteSolution(response.Solution!, stopwatch.Elapsed);
         }
         else
         {
-            outputWriter.LogErrors(response.Errors);
+            outputWriter.WriteErrors(response.Errors);
             return -1;
         }
-        outputWriter.Log(stopwatch.Elapsed);
 
         return default;
     }

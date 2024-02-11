@@ -9,4 +9,5 @@ public class Project(
     public string Name { get; } = name;
     public string? Version { get; } = version;
     public List<Target> Targets { get; } = targets;
+    public override string ToString() => $"{Name}: {Version}";
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <AssemblyName>DotNetWhere</AssemblyName>
         <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
@@ -27,6 +27,10 @@
         <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="IDisposableAnalyzers">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>

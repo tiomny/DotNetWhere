@@ -4,13 +4,13 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="CommandLineParser" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
-        <PackageReference Include="Spectre.Console.Cli" />
-        <PackageReference Include="Splat" />
-        <PackageReference Include="Splat.DependencyInjection.SourceGenerator">
+        <PackageReference Include="IDisposableAnalyzers">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+        <PackageReference Include="Spectre.Console" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\DotNetWhere.Core\DotNetWhere.Core.csproj" />

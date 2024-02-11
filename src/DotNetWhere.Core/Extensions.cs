@@ -1,9 +1,9 @@
-using Splat;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotNetWhere.Core;
 
 public static class Extensions
 {
-    public static IMutableDependencyResolver AddCore(this IMutableDependencyResolver resolver) =>
-        resolver.RegisterAnd<IProvider, Provider>();
+    public static IServiceCollection AddCore(this IServiceCollection services) =>
+        services.AddScoped<IProvider, Provider>();
 }
