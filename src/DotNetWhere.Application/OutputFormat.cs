@@ -1,11 +1,12 @@
-using CommandLine;
+using System.ComponentModel;
 
 namespace DotNetWhere.Application;
 
+[DefaultValue(Color)]
 public enum OutputFormat
 {
-    Compact,
     Color,
+    Compact,
     Yaml,
     Json
 }

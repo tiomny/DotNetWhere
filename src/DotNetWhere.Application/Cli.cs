@@ -15,7 +15,7 @@ public static class Cli
         using var parser = new CommandLine.Parser(with => with.HelpWriter = null);
         var parserResult = parser.ParseArguments<Options>(args);
         parserResult
-          .WithParsed<Options>(options => Run(options))
+          .WithParsed(Run)
           .WithNotParsed(_ => DisplayHelp(parserResult));
     }
 
@@ -35,12 +35,13 @@ public static class Cli
         services
             .AddCore()
             .AddSingleton(options)
-            .RegisterFactory<TextWriter, OutputWriterFactory>()
-            .RegisterFactory<IWriter, WriterFactory>()
-            .AddKeyedTransient<IWriter, CompactWriter>(OutputFormat.Compact)
-            .AddKeyedTransient<IWriter, ColorWriter>(OutputFormat.Color)
-            .AddKeyedTransient<IWriter, JsonWriter>(OutputFormat.Json)
-            .AddKeyedTransient<IWriter, YamlWriter>(OutputFormat.Yaml)
+            .AddSingleton(options.ToRequest())
+            .RegisterResolver<TextWriter, OutputWriterResolver>()
+            .RegisterResolver<IWriter, WriterResolver>()
+            .AddKeyedSingleton<IWriter, CompactWriter>(OutputFormat.Compact)
+            .AddKeyedSingleton<IWriter, ColorWriter>(OutputFormat.Color)
+            .AddKeyedSingleton<IWriter, JsonWriter>(OutputFormat.Json)
+            .AddKeyedSingleton<IWriter, YamlWriter>(OutputFormat.Yaml)
             .AddSingleton<DotNetWhereCommand>();
     }
 
@@ -49,20 +50,19 @@ public static class Cli
         var helpText = HelpText.AutoBuild(result, h =>
         {
             h.AddEnumValuesToHelpText = true;
+            h.AddPostOptionsLine("*     When not passed: any.");
+            h.AddPostOptionsLine("**    Can be mask or regex.");
+            h.AddPostOptionsLine("***   search expression can start from `!` or `/`.");
+            h.AddPostOptionsLine("        `!` is for `not`.");
+            h.AddPostOptionsLine("            Everything afer it will be considered as a `not match` expression.");
+            h.AddPostOptionsLine("            The app looks for everything that does not match expression after `!`.");
+            h.AddPostOptionsLine("        `/` is for `regular expression`.");
+            h.AddPostOptionsLine("            The app looks for everything that match regular expression after `/`.");
+            h.AddPostOptionsLine(string.Empty);
+
             return HelpText.DefaultParsingErrorsHandler(result, h);
         }, e => e);
         Console.WriteLine(helpText);
     }
 
-    static IServiceCollection RegisterFactory<TService, TFactory>(this IServiceCollection services)
-        where TService : class
-        where TFactory : class, IFactory<TService>
-    {
-        services.AddSingleton<TFactory>();
-        services.AddSingleton<TService>(
-            provider => provider.GetService<TFactory>()!.Create()
-            );
-
-        return services;
-    }
 }

@@ -24,7 +24,7 @@ internal static class Mapper
     public static PackageKey ToPackageKey(this LibraryDependency libraryDependency, string target) =>
         ToPackageKey(
             libraryDependency.Name,
-            libraryDependency.LibraryRange.VersionRange.MinVersion,
+            libraryDependency.LibraryRange.VersionRange?.MinVersion,
             target);
 
     private static PackageKey ToPackageKey(string name, NuGetVersion? version, string target) =>

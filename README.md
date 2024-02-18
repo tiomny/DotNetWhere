@@ -57,23 +57,42 @@ DotNetWhere.Core
 ## Usage
 
 All query arguments are optional:
-```bash
+```
 > dotnet where --help
+USAGE:
+List all packages in solution in current directory with compact format:
+  DotNetWhere --format Compact
+List packages in target net8.0 that name matches System.* and version is not
+6.0.0 :
+  DotNetWhere -p System.* -t net8.0 -V !6.0.0
+
   -d, --dir                Solution directory. When not passed: current
                            directory.
 
-  -p, --package            The NuGet package name. When not passed: all
-                           packages. Can be mask or regex.
+  -p, --package            The NuGet package name. ***
 
-  -V, --package-version    The NuGet package version. When not passed: any
-                           version. Can be mask or regex.
+  -V, --package-version    The NuGet package version. ***
 
-  -f, --format             Output format. Default: Compact. Valid values:
-                           Compact, Color, Yaml, Json
+  -t, --dotnet-target      .Net target version. ***
+
+  -f, --format             Output format. Default: Color. Valid values: Color,
+                           Compact, Yaml, Json
 
   -o, --output             Output file.
 
   --help                   Display this help screen.
 
   --version                Display version information.
+
+
+*     When not passed: any.
+**    Can be mask or regex.
+***   search expression can start from `!` or `/`.
+        `!` is for `not`.
+            Everything afer it will be considered as a `not match` expression.
+            The app looks for everything that does not match expression after
+            `!`.
+        `/` is for `regular expression`.
+            The app looks for everything that match regular expression after
+            `/`.
 ```

@@ -2,7 +2,7 @@
   "profiles": {
     "DotNetWhere": {
       "commandName": "Project",
-      "commandLineArgs": "-d E:\\mydev\\DotNetWhere -p System.* -V /^(?!.*6\\.0\\.0).* -f Compact -o E:\\mydev\\DotNetWhere\\p.lst"
+      "commandLineArgs": "-d E:\\mydev\\DotNetWhere -p System.* -V !/.*6\\.0\\.0.* -t net8.0 "
     }
   }
 }

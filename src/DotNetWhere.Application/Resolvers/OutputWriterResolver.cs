@@ -1,10 +1,12 @@
+using DotNetWhere.Core.Resolvers;
+
 namespace DotNetWhere.Application.Factories;
 
-internal sealed class OutputWriterFactory(Options options) : IFactory<TextWriter>, IDisposable
+internal sealed class OutputWriterResolver(Options options) : IResolver<TextWriter>, IDisposable
 {
     private readonly List<TextWriter> _created = [];
 #pragma warning disable IDISP015 // Member should not return created and cached instance
-    public TextWriter Create()
+    public TextWriter Get()
 #pragma warning restore IDISP015 // Member should not return created and cached instance
     {
         if (!string.IsNullOrEmpty(options.OutputFile))

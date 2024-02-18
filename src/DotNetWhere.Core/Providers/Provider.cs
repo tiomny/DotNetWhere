@@ -3,7 +3,10 @@ using DotNetWhere.Core.Models;
 
 namespace DotNetWhere.Core.Providers;
 
-internal sealed class Provider : IProvider
+internal sealed class Provider(
+    IPackageMatcher? packageMatcher,
+    ITargetMatcher? targetMatcher
+    ) : IProvider
 {
     public Response Get(Request request)
     {
@@ -11,9 +14,6 @@ internal sealed class Provider : IProvider
 
         try
         {
-            var packageMatcher = MatcherFactory.CreateMatcher(request.PackageName);
-            var versionMatcher = MatcherFactory.CreateMatcher(request.PackageVersion);
-
             return new RequestValidator(request)
                 .HandleWith(new WorkingDirectoryValidator(request.WorkingDirectory))
                 .HandleNext(new GetRestoreGraphOutputPathQuery())
@@ -24,7 +24,7 @@ internal sealed class Provider : IProvider
                         .HandleWith(new RestoreCommand(request.WorkingDirectory))
                         .HandleNext(new GetProjectPackagesQuery(
                             packageMatcher,
-                            versionMatcher,
+                            targetMatcher,
                             restoreGraphOutputPath,
                             name)))
                 .Unwrap()

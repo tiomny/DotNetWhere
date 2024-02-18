@@ -1,12 +1,10 @@
 namespace DotNetWhere.Core.Models;
 
 public sealed class Request
-(
-    string? packageName,
-    string? workingDirectory = null
-)
+    (string workingDirectory)
 {
-    public string? PackageName { get; } = packageName;
+    public string? PackageName { get; init; }
     public string? PackageVersion { get; init; }
-    public string WorkingDirectory { get; } = workingDirectory ?? Environment.CurrentDirectory;
+    public string? Target {  get; init; }
+    public string WorkingDirectory { get; } = workingDirectory;
 }

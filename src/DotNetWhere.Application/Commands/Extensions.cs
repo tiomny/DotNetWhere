@@ -5,8 +5,10 @@ namespace DotNetWhere.Application.Commands;
 internal static class Extensions
 {
     public static Request ToRequest(this Options options) =>
-        new(options.PackageName, options.Directory)
+        new(options.Directory ?? Environment.CurrentDirectory)
         {
-            PackageVersion = options.PackageVersion
+            PackageName = options.PackageName,
+            PackageVersion = options.PackageVersion,
+            Target = options.Target,
         };
 }

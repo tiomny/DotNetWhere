@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 using DotNetWhere.Core.Helpers;
 using DotNetWhere.Core.Mappers;
 using DotNetWhere.Core.Matchers;
@@ -9,25 +7,17 @@ namespace DotNetWhere.Core.Queries;
 
 internal sealed class GetProjectPackagesQuery
 (
-    IMatcher? packageMatcher,
-    IMatcher? versionMatcher,
+    IPackageMatcher? packageMatcher,
+    ITargetMatcher? targetMatcher,
     string restoreGraphOutputPath,
     string name
 ) : IResultHandler<Solution?>
 {
-    private readonly Dictionary<PackageKey, List<PackageKey>> _packages = new();
-    private readonly Dictionary<PackageKey, Package> _matchPackages = new();
+    private readonly Dictionary<PackageKey, List<PackageKey>> _packages = [];
+    private readonly Dictionary<PackageKey, Package> _matchPackages = [];
 
     public Result<Solution?> Handle()
     {
-#pragma warning disable S3358 // Ternary operators should not be nested
-        match = packageMatcher is not null && versionMatcher is not null
-        ? matchByPackageAndVersion
-        : (packageMatcher is null
-            ? matchByVersion
-            : matchByPackage);
-#pragma warning restore S3358 // Ternary operators should not be nested
-
         var solution = GetSolution();
 
         return Result<Solution?>.Success(solution);
@@ -85,6 +75,11 @@ internal sealed class GetProjectPackagesQuery
         TargetFrameworkInformation target,
         LockFile lockFile)
     {
+        if (targetMatcher?.Match(target) == false)
+        {
+            return null;
+        }
+
         var lockFileTarget = LockFileHelpers.GetLockFileTarget(lockFile, target.FrameworkName.ToString());
         if (lockFileTarget is null)
         {
@@ -116,13 +111,13 @@ internal sealed class GetProjectPackagesQuery
 
         var isMatch = false;
 
-        if (packageMatcher is null && versionMatcher is null)
+        if (packageMatcher is null)
         {
             shouldAdd = true;
         }
         else
         {
-            shouldAdd = isMatch = match!(packageKey.Name, packageKey.Version);            
+            shouldAdd = isMatch = packageMatcher.Match(packageKey);
         }
 
         var packages = new List<Package>();
@@ -179,17 +174,4 @@ internal sealed class GetProjectPackagesQuery
             }
         }
     }
-
-    Func<string, string, bool>? match;
-
-    bool matchByPackageAndVersion(string package, string version) =>
-        packageMatcher!.Match(package) && versionMatcher!.Match(version);
-
-#pragma warning disable S1172 // Unused method parameters should be removed
-    bool matchByPackage(string package, string version) =>
-        packageMatcher!.Match(package);
-
-    bool matchByVersion(string package, string version) =>
-        versionMatcher!.Match(version);
-#pragma warning restore S1172 // Unused method parameters should be removed
 }

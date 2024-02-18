@@ -1,4 +1,5 @@
 using DotNetWhere.Application.Writers;
+using DotNetWhere.Core.Models;
 using DotNetWhere.Core.Providers;
 
 namespace DotNetWhere.Application.Commands;
@@ -7,13 +8,12 @@ internal sealed class DotNetWhereCommand
 (
     IWriter outputWriter,
     IProvider provider,
-    Options options
+    Request request
 )
 {
     public int Execute()
     {
         var stopwatch = Stopwatch.StartNew();
-        var request = options.ToRequest();
         var response = provider.Get(request);
 
         stopwatch.Stop();
