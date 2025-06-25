@@ -7,7 +7,7 @@ internal sealed class DotNetCliCommand
 ) : IResultHandler
 {
     private const int SuccessStatusCode = 0;
-    private const int TimeoutMilliseconds = 30000;
+    private const int TimeoutMilliseconds = 120000;
     private const string ArgumentsSeparator = " ";
     private const string ProcessName = "dotnet";
 
