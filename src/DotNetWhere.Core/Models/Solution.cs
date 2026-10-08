@@ -1,10 +1,10 @@
 namespace DotNetWhere.Core.Models;
 
-public class Solution(
+public sealed class Solution(
     string name,
-    List<Project> projects
+    IEnumerable<Project> projects
     )
 {
     public string Name { get; } = name;
-    public List<Project> Projects { get; } = projects;
+    public IReadOnlyList<Project> Projects { get; } = Array.AsReadOnly(projects.ToArray());
 }

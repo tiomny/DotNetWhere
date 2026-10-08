@@ -22,17 +22,21 @@
         <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="CommandLineParser" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Spectre.Console" />
         <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
         <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="IDisposableAnalyzers">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\DotNetWhere.Application\DotNetWhere.Application.csproj" />
+        <ProjectReference Include="..\DotNetWhere.Infrastructure\DotNetWhere.Infrastructure.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="DotNetWhere.Tests" />
     </ItemGroup>
 </Project>

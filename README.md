@@ -19,57 +19,36 @@ Once installed, run the following command:
 
 ```bash
 > dotnet where -p Newtonsoft.Json --format Compact
-DotNetWhere.Application
-  net10.0
-    Newtonsoft.Json: 13.0.4
-DotNetWhere.Core
+DotNetWhere.Infrastructure
   net10.0
     NuGet.ProjectModel: 7.9.0
       NuGet.DependencyResolver.Core: 7.9.0
         NuGet.Protocol: 7.9.0
           NuGet.Packaging: 7.9.0
             Newtonsoft.Json: 13.0.3
+DotNetWhere.Tests
+  net10.0
+    Microsoft.NET.Test.Sdk: 17.14.1
+      Microsoft.TestPlatform.TestHost: 17.14.1
+        Newtonsoft.Json: 13.0.4
+DotNetWhere
+  net10.0
+    Newtonsoft.Json: 13.0.4
 Time elapsed: 00:00:01.54
 ```
 
 ```bash
 > dotnet where -d . -p 'System.*' -V '!/.*6\.0\.0.*' -t net10.0 --format Compact
-DotNetWhere.Application
-  net10.0
-    Microsoft.SourceLink.GitHub: 10.0.401
-      Microsoft.Build.Tasks.Git: 10.0.401
-        System.IO.Hashing: 10.0.12
-      System.IO.Hashing: 10.0.12
-DotNetWhere.Core
-  net10.0
-    Microsoft.SourceLink.GitHub: 10.0.401
-      Microsoft.Build.Tasks.Git: 10.0.401
-        System.IO.Hashing: 10.0.12
-      System.IO.Hashing: 10.0.12
-    NuGet.ProjectModel: 7.9.0
-      NuGet.DependencyResolver.Core: 7.9.0
-        NuGet.Configuration: 7.9.0
-          System.Security.Cryptography.ProtectedData: 8.0.0
-        NuGet.Protocol: 7.9.0
-          NuGet.Packaging: 7.9.0
-            NuGet.Configuration: 7.9.0
-              System.Security.Cryptography.ProtectedData: 8.0.0
-            System.Security.Cryptography.Pkcs: 8.0.1
-DotNetWhere
-  net10.0
-    Microsoft.SourceLink.GitHub: 10.0.401
-      Microsoft.Build.Tasks.Git: 10.0.401
-        System.IO.Hashing: 10.0.12
-      System.IO.Hashing: 10.0.12
-Time elapsed: 00:00:01.58
 ```
 
-These examples were captured in this repository after restoring its dependencies.
+The first example shows the paths to Newtonsoft.Json in this solution. The second command combines a wildcard name,
+a negated regex version and a target-framework filter.
 
 ## Development
 
 The repository uses stable SDK `10.0.401` from `global.json`, with patch roll-forward enabled.
-All three projects target `net10.0` and use C# 14. Build and run from the repository root:
+All projects target `net10.0` and use C# 14. Nullable reference types and IDisposableAnalyzers are enabled globally
+in `Directory.Build.props`. Build and run from the repository root:
 
 ```bash
 dotnet restore
@@ -79,47 +58,46 @@ dotnet pack src/DotNetWhere/DotNetWhere.csproj -c Release -o ./artifacts
 ```
 
 `dotnet test --no-restore --logger trx --results-directory ./tests-results` runs the CI test command.
-There are currently no test projects in the solution.
+The xUnit suite covers successive and concurrent requests, filtering, assets parsing, processes, output streams and
+architecture boundaries. Process tests use a controlled executable fixture; they do not restore packages from a network.
+
+## Architecture
+
+- `DotNetWhere.Core`: immutable dependency graphs, search filters and a pure graph traversal.
+- `DotNetWhere.Application`: `AnalyzeDependencies`, operation requests/results and `IDependencyGraphSource`.
+- `DotNetWhere.Infrastructure`: dotnet processes, NuGet assets normalization and temporary-file ownership.
+- `DotNetWhere`: CLI parsing, output formatters, output files and dependency registration.
+
+Application depends on Core. Infrastructure implements the Application port and converts NuGet data to Core models.
+The executable composes the services. Tests live in `tests/DotNetWhere.Tests`; the solution groups production projects
+under `src`, tests under `tests`, and shared files under `common`. Core and Application have no DI, CLI, NuGet or rendering dependencies.
+
+Search parameters are passed to `ExecuteAsync` on every invocation. The same scenario can handle different requests
+without rebuilding a container. Output settings stay in the CLI. Formatters borrow streams, and the CLI closes only
+files it opens. Project/target graphs use resolved package versions; search results are separate from the input graph.
 
 ## Usage
 
-All query arguments are optional:
-```
-> dotnet where --help
-USAGE:
-List all packages in solution in current directory with compact format:
-  DotNetWhere --format Compact
-List packages in target net10.0 that name matches System.* and version is not
-6.0.0:
-  DotNetWhere -p System.* -t net10.0 -V !6.0.0
+All query arguments are optional. Run `dotnet where --help` for examples and the full option list.
 
-  -d, --dir                Solution directory. When not passed: current
-                           directory.
+| Option | Meaning |
+| --- | --- |
+| `-d`, `--dir` | Project or solution directory; defaults to the current directory |
+| `-p`, `--package` | Package name filter |
+| `-V`, `--package-version` | Resolved package version filter |
+| `-t`, `--dotnet-target` | Target framework filter |
+| `-f`, `--format` | Color (default), Compact or Json; Yaml is reserved but unsupported |
+| `-o`, `--output` | Write a successful result to this file |
+| `--help`, `--version` | Display help or version without running analysis |
 
-  -p, --package            The NuGet package name. ***
+Filters support exact strings, `*`/`?` wildcards, a leading `/` for regex and a leading `!` for negation. Name and version
+filters are combined with AND. Regex matching is case-sensitive and limited to one second per match; exact strings
+and wildcards are case-insensitive. Matching packages and their ancestor paths are retained in the output.
 
-  -V, --package-version    The NuGet package version. ***
+Json retains the `{"solution": ..., "elapsedTime": ...}` success envelope and `{"errors": [...]}` error envelope.
+Color, Compact and Json all honor `--output`. A failed query leaves the destination file untouched and renders its
+errors to standard output in the selected format. Parsing errors, unsupported formats, output failures and unexpected
+exceptions are reported to standard error.
 
-  -t, --dotnet-target      .Net target version. ***
-
-  -f, --format             Output format. Default: Color. Valid values: Color,
-                           Compact, Yaml, Json
-
-  -o, --output             Output file.
-
-  --help                   Display this help screen.
-
-  --version                Display version information.
-
-
-*     When not passed: any.
-**    Can be mask or regex.
-***   search expression can start from `!` or `/`.
-        `!` is for `not`.
-            Everything afer it will be considered as a `not match` expression.
-            The app looks for everything that does not match expression after
-            `!`.
-        `/` is for `regular expression`.
-            The app looks for everything that match regular expression after
-            `/`.
-```
+Exit codes: `0` for success/help/version, `1` for analysis or output failure (including no matches), `2` for invalid
+arguments or unsupported Yaml, and `130` for cancellation. Ctrl+C cancels the operation and stops its dotnet process.

@@ -1,13 +1,13 @@
 namespace DotNetWhere.Core.Models;
 
-public class Project(
+public sealed class Project(
     string name,
     string? version,
-    List<Target> targets
+    IEnumerable<Target> targets
     )
 {
     public string Name { get; } = name;
     public string? Version { get; } = version;
-    public List<Target> Targets { get; } = targets;
+    public IReadOnlyList<Target> Targets { get; } = Array.AsReadOnly(targets.ToArray());
     public override string ToString() => $"{Name}: {Version}";
 }

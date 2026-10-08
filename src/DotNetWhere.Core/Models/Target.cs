@@ -1,10 +1,10 @@
 namespace DotNetWhere.Core.Models;
 
-public class Target(
+public sealed class Target(
     string version,
-    List<Package> packages
+    IEnumerable<Package> packages
     )
 {
     public string Version { get; } = version;
-    public List<Package> Packages { get; } = packages;
+    public IReadOnlyList<Package> Packages { get; } = Array.AsReadOnly(packages.ToArray());
 }
