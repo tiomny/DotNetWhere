@@ -10,6 +10,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+        <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="Spectre.Console" />
     </ItemGroup>
     <ItemGroup>

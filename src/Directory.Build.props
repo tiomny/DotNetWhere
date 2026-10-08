@@ -3,10 +3,10 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <ImplicitUsings>enable</ImplicitUsings>
         <IncludeSymbols>true</IncludeSymbols>
-        <LangVersion>preview</LangVersion>
+        <LangVersion>14.0</LangVersion>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+        <TargetFramework>net10.0</TargetFramework>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
     <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">

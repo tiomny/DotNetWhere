@@ -6,7 +6,8 @@
 
 ## Installation
 
-Download and install the [.NET 6/8 SDK](https://www.microsoft.com/net/download).
+Download and install the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
+DotNetWhere targets `net10.0` and requires .NET 10 to run.
 
 Once installed, run the following command:
 
@@ -17,42 +18,68 @@ Once installed, run the following command:
 ## Example
 
 ```bash
-> dotnet where -p Newtonsoft.Json
+> dotnet where -p Newtonsoft.Json --format Compact
+DotNetWhere.Application
+  net10.0
+    Newtonsoft.Json: 13.0.4
 DotNetWhere.Core
-  net6.0
-    NuGet.ProjectModel: 6.8.0
-      NuGet.DependencyResolver.Core: 6.8.0
-        NuGet.Protocol: 6.8.0
-          NuGet.Packaging: 6.8.0
+  net10.0
+    NuGet.ProjectModel: 7.9.0
+      NuGet.DependencyResolver.Core: 7.9.0
+        NuGet.Protocol: 7.9.0
+          NuGet.Packaging: 7.9.0
             Newtonsoft.Json: 13.0.3
-  net8.0
-    NuGet.ProjectModel: 6.8.0
-      NuGet.DependencyResolver.Core: 6.8.0
-        NuGet.Protocol: 6.8.0
-          NuGet.Packaging: 6.8.0
-            Newtonsoft.Json: 13.0.3
-
+Time elapsed: 00:00:01.54
 ```
 
 ```bash
-> dotnet where -d E:\dev\DotNetWhere -p System.* -V /^(?!.*6\.0\.0).*
+> dotnet where -d . -p 'System.*' -V '!/.*6\.0\.0.*' -t net10.0 --format Compact
 DotNetWhere.Application
-  net6.0
-    Spectre.Console.Cli: 0.48.0
-      Spectre.Console: 0.48.0
-        System.Memory: 4.5.5
+  net10.0
+    Microsoft.SourceLink.GitHub: 10.0.401
+      Microsoft.Build.Tasks.Git: 10.0.401
+        System.IO.Hashing: 10.0.12
+      System.IO.Hashing: 10.0.12
 DotNetWhere.Core
-  net6.0
-    NuGet.ProjectModel: 6.8.0
-      NuGet.DependencyResolver.Core: 6.8.0
-        NuGet.Configuration: 6.8.0
-          System.Security.Cryptography.ProtectedData: 4.4.0
-        NuGet.Protocol: 6.8.0
-          NuGet.Packaging: 6.8.0
-            NuGet.Configuration: 6.8.0
-              System.Security.Cryptography.ProtectedData: 4.4.0
-            System.Security.Cryptography.Pkcs: 6.0.4
+  net10.0
+    Microsoft.SourceLink.GitHub: 10.0.401
+      Microsoft.Build.Tasks.Git: 10.0.401
+        System.IO.Hashing: 10.0.12
+      System.IO.Hashing: 10.0.12
+    NuGet.ProjectModel: 7.9.0
+      NuGet.DependencyResolver.Core: 7.9.0
+        NuGet.Configuration: 7.9.0
+          System.Security.Cryptography.ProtectedData: 8.0.0
+        NuGet.Protocol: 7.9.0
+          NuGet.Packaging: 7.9.0
+            NuGet.Configuration: 7.9.0
+              System.Security.Cryptography.ProtectedData: 8.0.0
+            System.Security.Cryptography.Pkcs: 8.0.1
+DotNetWhere
+  net10.0
+    Microsoft.SourceLink.GitHub: 10.0.401
+      Microsoft.Build.Tasks.Git: 10.0.401
+        System.IO.Hashing: 10.0.12
+      System.IO.Hashing: 10.0.12
+Time elapsed: 00:00:01.58
 ```
+
+These examples were captured in this repository after restoring its dependencies.
+
+## Development
+
+The repository uses stable SDK `10.0.401` from `global.json`, with patch roll-forward enabled.
+All three projects target `net10.0` and use C# 14. Build and run from the repository root:
+
+```bash
+dotnet restore
+dotnet build --no-restore
+dotnet run --project src/DotNetWhere -f net10.0 -- -d . -p Newtonsoft.Json --format Json
+dotnet pack src/DotNetWhere/DotNetWhere.csproj -c Release -o ./artifacts
+```
+
+`dotnet test --no-restore --logger trx --results-directory ./tests-results` runs the CI test command.
+There are currently no test projects in the solution.
 
 ## Usage
 
@@ -62,9 +89,9 @@ All query arguments are optional:
 USAGE:
 List all packages in solution in current directory with compact format:
   DotNetWhere --format Compact
-List packages in target net8.0 that name matches System.* and version is not
-6.0.0 :
-  DotNetWhere -p System.* -t net8.0 -V !6.0.0
+List packages in target net10.0 that name matches System.* and version is not
+6.0.0:
+  DotNetWhere -p System.* -t net10.0 -V !6.0.0
 
   -d, --dir                Solution directory. When not passed: current
                            directory.

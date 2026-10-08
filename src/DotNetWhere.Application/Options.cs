@@ -29,7 +29,10 @@ internal sealed class Options
         get
         {
             yield return new Example("List all packages in solution in current directory with compact format", new Options() { OutputFormat = OutputFormat.Compact });
-            yield return new Example("List packages in target net8.0 that name matches System.* and version is not 6.0.0 ", new UnParserSettings() { PreferShortName = true }, new Options { PackageName = "System.*", PackageVersion = @"!6.0.0", Target = "net8.0" });
+            yield return new Example(
+                "List packages in target net10.0 that name matches System.* and version is not 6.0.0",
+                new UnParserSettings() { PreferShortName = true },
+                new Options { PackageName = "System.*", PackageVersion = @"!6.0.0", Target = "net10.0" });
         }
     }
 }
